@@ -84,12 +84,12 @@ describe("Upload API", () => {
     }
 
     it("reshapes the body to the format canvas wants", () => {
-      const fixed = transformBody(getBody({onDuplicate: 'overwrite'}));
+      const fixed = transformBody(getBody({ onDuplicate: "overwrite" }));
       assert.equal(fixed.name, "filename");
       assert.equal(fixed.size, 42);
       assert.equal(fixed.contentType, "jpeg");
       assert.equal(fixed.parent_folder_id, 1);
-      assert.equal(fixed.on_duplicate, 'overwrite')
+      assert.equal(fixed.on_duplicate, "overwrite");
     });
 
     it("renames files on duplicate instead of overwriting them", () => {
@@ -111,13 +111,31 @@ describe("Upload API", () => {
     });
 
     describe('when "onDuplicate" is undefined', () => {
-      const overrides = {onDuplicate: undefined}
+      const overrides = { onDuplicate: undefined };
 
-      const subject = () => transformBody(getBody(overrides))
+      const subject = () => transformBody(getBody(overrides));
 
       it('defaults duplication strategy to "rename"', () => {
-        assert.equal(subject().on_duplicate, 'rename')
-      })
-    })
+        assert.equal(subject().on_duplicate, "rename");
+      });
+    });
+
+    describe('when "category" is specified', () => {
+      const overrides = { category: "icon_maker" };
+
+      const subject = () => transformBody(getBody(overrides));
+
+      it("sets the category in the body", () => {
+        assert.equal(subject().category, "icon_maker");
+      });
+    });
+
+    describe('when "category" is not specified', () => {
+      const subject = () => transformBody(getBody());
+
+      it("sets the category in the body", () => {
+        assert.equal(subject().category, undefined);
+      });
+    });
   });
 });

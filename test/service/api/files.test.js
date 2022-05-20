@@ -13,7 +13,7 @@ describe("Files API", () => {
         const query = {
           contextType: "course",
           contextId: "nomatter",
-          per_page: 50
+          per_page: 50,
         };
         const expectedPath = `/api/v1/folders/${id}/files?per_page=50&include[]=preview_url&use_verifiers=0`;
         assert.equal(canvasPath({ params, query }), expectedPath);
@@ -33,7 +33,7 @@ describe("Files API", () => {
           contextType: "course",
           contextId: "nomatter",
           per_page: 50,
-          search_term: "banana"
+          search_term: "banana",
         };
         const expectedPath = `/api/v1/folders/${id}/files?per_page=50&include[]=preview_url&use_verifiers=0&search_term=banana`;
         assert.equal(canvasPath({ params, query }), expectedPath);
@@ -47,10 +47,28 @@ describe("Files API", () => {
           contextId: "nomatter",
           per_page: 50,
           sort: "created_at",
-          order: "desc"
+          order: "desc",
         };
         const expectedPath = `/api/v1/folders/${id}/files?per_page=50&include[]=preview_url&use_verifiers=0&sort=created_at&order=desc`;
         assert.equal(canvasPath({ params, query }), expectedPath);
+      });
+
+      describe("when a category is given", () => {
+        let params, query;
+
+        const subject = () => canvasPath({ params, query });
+
+        beforeEach(() => {
+          params = { folderId: 7 };
+          query = { category: "uncategorized" };
+        });
+
+        it("adds the category as a query param", () => {
+          assert.equal(
+            subject(),
+            "/api/v1/folders/7/files?per_page=undefined&include[]=preview_url&use_verifiers=0&category=uncategorized"
+          );
+        });
       });
     });
   });
@@ -62,11 +80,11 @@ describe("Files API", () => {
       request = { get: () => {} };
       response = {
         status: sinon.spy(),
-        send: sinon.spy()
+        send: sinon.spy(),
       };
       canvasResponse = {
         status: 200,
-        body: []
+        body: [],
       };
     });
 
@@ -96,14 +114,38 @@ describe("Files API", () => {
           url: "someurl",
           folder_id: 1,
           embedded_iframe_url: "https://canvas.com/foo/bar",
-          thumbnail_url: "https://canvas.com/foo/bar/thumbnail"
+          thumbnail_url: "https://canvas.com/foo/bar/thumbnail",
         };
+      });
+
+      describe("when no thumbnail_url is given", () => {
+        beforeEach(() => {
+          file.thumbnail_url = undefined;
+        });
+
+        it("uses the url", () => {
+          canvasResponse.body = [file];
+          canvasResponse.statusCode = 200;
+          canvasResponseHandler(request, response, canvasResponse);
+          assert.deepStrictEqual(response.send.firstCall.args[0].files[0], {
+            createdAt: "2021-08-12T18:30:53Z",
+            id: 47,
+            uuid: "123123123asdf",
+            type: "text/plain",
+            name: "Foo",
+            url: "someurl",
+            embed: { type: "scribd" },
+            folderId: 1,
+            iframeUrl: "https://canvas.com/foo/bar",
+            thumbnailUrl: "someurl",
+          });
+        });
       });
 
       it("creates files array property with items from response body", () => {
         canvasResponse.body = [{}, {}, {}];
         canvasResponseHandler(request, response, canvasResponse);
-        response.send.calledWithMatch(val => {
+        response.send.calledWithMatch((val) => {
           return (
             Array.isArray(val.files) &&
             val.files.length === canvasResponse.body.length
@@ -125,7 +167,7 @@ describe("Files API", () => {
           embed: { type: "scribd" },
           folderId: 1,
           iframeUrl: "https://canvas.com/foo/bar",
-          thumbnailUrl: "https://canvas.com/foo/bar/thumbnail"
+          thumbnailUrl: "https://canvas.com/foo/bar/thumbnail",
         });
       });
 
@@ -133,7 +175,7 @@ describe("Files API", () => {
         file.display_name = undefined;
         canvasResponse.body = [file];
         canvasResponseHandler(request, response, canvasResponse);
-        response.send.calledWithMatch(val => {
+        response.send.calledWithMatch((val) => {
           return sinon.match({ name: file.filename }, val[0]);
         });
       });
@@ -141,7 +183,7 @@ describe("Files API", () => {
       it("has bookmark from canvasResponse", () => {
         canvasResponse.bookmark = "foo";
         canvasResponseHandler(request, response, canvasResponse);
-        response.send.calledWithMatch(val => {
+        response.send.calledWithMatch((val) => {
           return /foo/.test(val.bookmark);
         });
       });
@@ -149,7 +191,7 @@ describe("Files API", () => {
       it("has null bookmark if canvasResponse does not have one", () => {
         canvasResponse.bookmark = undefined;
         canvasResponseHandler(request, response, canvasResponse);
-        response.send.calledWithMatch(val => {
+        response.send.calledWithMatch((val) => {
           return val.bookmark === null;
         });
       });

@@ -4,7 +4,7 @@ const { strictEqual } = require("assert");
 const sinon = require("sinon");
 const {
   canvasPath,
-  canvasResponseHandler
+  canvasResponseHandler,
 } = require("../../../app/api/documents");
 
 describe("Documents API", () => {
@@ -49,7 +49,7 @@ describe("Documents API", () => {
         contextId: id,
         contextType: "course",
         content_types: "text,application",
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -65,7 +65,7 @@ describe("Documents API", () => {
         contextId: id,
         contextType: "course",
         content_types: ["text", "application"],
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -81,7 +81,7 @@ describe("Documents API", () => {
         contextId: id,
         contextType: "course",
         exclude_content_types: "text,application",
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -97,7 +97,7 @@ describe("Documents API", () => {
         contextId: id,
         contextType: "course",
         exclude_content_types: ["text", "application"],
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -113,7 +113,7 @@ describe("Documents API", () => {
         contextId: id,
         contextType: "course",
         sort: "name",
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -130,7 +130,7 @@ describe("Documents API", () => {
         contextType: "course",
         sort: "name",
         order: "desc",
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
@@ -148,13 +148,39 @@ describe("Documents API", () => {
         sort: "name",
         order: "desc",
         search_term: "foo%20bar", // search comes in uri encoded
-        per_page: 50
+        per_page: 50,
       };
       const path = canvasPath({ params, query });
       strictEqual(
         path,
         `/api/v1/courses/${id}/files?per_page=50&use_verifiers=0&sort=name&order=desc&search_term=foo%20bar`
       );
+    });
+
+    describe("with 'category' query", () => {
+      let id, params, query;
+
+      beforeEach(() => {
+        id = 47;
+        params = {};
+        query = {
+          contextId: id,
+          contextType: "course",
+          sort: "name",
+          order: "desc",
+          search_term: "foo%20bar", // search comes in uri encoded
+          per_page: 50,
+          category: "uncategorized",
+        };
+      });
+
+      it("sets the 'category' query param", () => {
+        const path = canvasPath({ params, query });
+        strictEqual(
+          path,
+          `/api/v1/courses/47/files?per_page=50&use_verifiers=0&sort=name&order=desc&search_term=foo%20bar&category=uncategorized`
+        );
+      });
     });
   });
 
@@ -167,16 +193,16 @@ describe("Documents API", () => {
         get: () => "canvashost",
         query: {
           contextType: "course",
-          contextId: "17"
-        }
+          contextId: "17",
+        },
       };
       response = {
         status: sinon.spy(),
-        send: sinon.spy()
+        send: sinon.spy(),
       };
       canvasResponse = {
         statusCode: 200,
-        body: []
+        body: [],
       };
     });
 
@@ -208,15 +234,16 @@ describe("Documents API", () => {
             unlock_at: "tomorrow",
             lock_at: "next week",
             created_at: "last week",
-            uuid: "xyzzy"
-          }
+            uuid: "xyzzy",
+            media_entry_id: "m-aSwWWoNpSxcYpzDQSwhxVdt1hFCHzR4",
+          },
         ];
       });
 
       it("transforms the API response for course files", () => {
         canvasResponseHandler(request, response, canvasResponse);
 
-        sinon.assert.calledWithMatch(response.send, val => {
+        sinon.assert.calledWithMatch(response.send, (val) => {
           return (
             val.bookmark === null &&
             val.files[0].id === 1 &&
@@ -233,7 +260,8 @@ describe("Documents API", () => {
             val.files[0].locked_for_user === true &&
             val.files[0].unlock_at === "tomorrow" &&
             val.files[0].lock_at === "next week" &&
-            val.files[0].date === "last week"
+            val.files[0].date === "last week" &&
+            val.files[0].media_entry_id === "m-aSwWWoNpSxcYpzDQSwhxVdt1hFCHzR4"
           );
         });
       });
@@ -242,7 +270,7 @@ describe("Documents API", () => {
         request.query.contextType = "user";
         canvasResponseHandler(request, response, canvasResponse);
 
-        sinon.assert.calledWithMatch(response.send, val => {
+        sinon.assert.calledWithMatch(response.send, (val) => {
           return (
             val.bookmark === null &&
             val.files[0].id === 1 &&
