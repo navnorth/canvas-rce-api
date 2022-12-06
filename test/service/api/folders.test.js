@@ -92,8 +92,8 @@ describe("Folders API", () => {
       assert.throws(() => canvasPath({ params: {}, query: query }));
     });
 
-    describe("course context icon maker folder", () => {
-      it("builds the correct path including context id", () => {
+    describe("course context icon maker folder, formerly buttons and icons folder", () => {
+      it("builds the correct path including context id when folder id is icon_maker", () => {
         const contextId = 47;
         const params = { folderId: "icon_maker" };
         const query = { contextType: "course", contextId, per_page: 50 };
