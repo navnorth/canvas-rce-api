@@ -38,14 +38,8 @@ pipeline {
         }
       }
     }
-    stage('Push latest to Starlord') {
-      when { environment name: "GERRIT_EVENT_TYPE", value: "change-merged" }
-      steps {
-        sh 'docker build --tag starlord.inscloudgate.net/jenkins/canvas-rce-api:latest .'
-        sh 'docker push starlord.inscloudgate.net/jenkins/canvas-rce-api:latest'
-      }
-    }
   }
+
   post {
     cleanup {
         sh 'docker-compose down --volumes --remove-orphans --rmi all'

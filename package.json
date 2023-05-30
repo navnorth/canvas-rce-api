@@ -1,10 +1,10 @@
 {
   "name": "canvas-rce-api",
-  "version": "1.23.0",
+  "version": "1.25.0",
   "description": "An API for proxying requests by the RCE to Canvas and other services.",
   "engines": {
     "node": "^16",
-    "npm": "^8"
+    "npm": "^9"
   },
   "mocha": {
     "exit": true,
@@ -86,8 +86,7 @@
     "parse-link-header": "0.4.1",
     "qs": "^6.2.1",
     "querystring": "0.2.0",
-    "raven": "github:zwily/raven-node#middleware-req-callback",
-    "unsplash-js": "^6.3.0"
+    "raven": "github:zwily/raven-node#middleware-req-callback"
   },
   "devDependencies": {
     "cross-env": "^3.1.3",

@@ -4,7 +4,6 @@ const { actionKeyMiddleware: statsdKey } = require("../middleware/stats");
 const _auth = require("../middleware/auth");
 const wrapCanvas = require("./wrapCanvas");
 const flickrSearch = require("./flickrSearch");
-const UnsplashController = require("./unsplash");
 const getSessionHandler = require("./session");
 const announcements = require("./announcements");
 const assignments = require("./assignments");
@@ -26,10 +25,10 @@ const youTubeTitle = require("./youTubeApi");
 const documents = require("./documents");
 
 function inject() {
-  return [_auth, UnsplashController];
+  return [_auth];
 }
 
-function init(auth, unsplashController) {
+function init(auth) {
   return {
     applyToApp(app) {
       app.get(
@@ -123,18 +122,7 @@ function init(auth, unsplashController) {
         auth,
         flickrSearch
       );
-      app.get(
-        "/api/unsplash/search",
-        statsdKey("api", "unsplash_search"),
-        auth,
-        unsplashController.search.bind(unsplashController)
-      );
-      app.get(
-        "/api/unsplash/pingback",
-        statsdKey("api", "unsplash_pingback"),
-        auth,
-        unsplashController.pingback.bind(unsplashController)
-      );
+
       app.get(
         "/api/session",
         statsdKey("api", "session"),
@@ -159,6 +147,12 @@ function init(auth, unsplashController) {
         auth,
         wrapCanvas(media_objects, { method: "POST" })
       );
+      app.post(
+        "/api/media_attachments",
+        statsdKey("api", "media_attachments"),
+        auth,
+        wrapCanvas(media_objects, { method: "POST" })
+      );
       app.get(
         "/api/media_objects",
         statsdKey("api", "media_objects"),
@@ -171,18 +165,36 @@ function init(auth, unsplashController) {
         auth,
         wrapCanvas(media_objects, { method: "PUT" })
       );
+      app.put(
+        "/api/media_attachments/:mediaAttachmentId",
+        statsdKey("api", "media_attachments"),
+        auth,
+        wrapCanvas(media_objects, { method: "PUT" })
+      );
       app.get(
         "/api/media_objects/:mediaObjectId/media_tracks",
         statsdKey("api", "media_tracks"),
         auth,
         wrapCanvas(media_tracks)
-      ),
-        app.put(
-          "/api/media_objects/:mediaObjectId/media_tracks",
-          statsdKey("api", "media_tracks"),
-          auth,
-          wrapCanvas(media_tracks, { method: "PUT" })
-        );
+      );
+      app.get(
+        "/api/media_attachments/:mediaAttachmentId/media_tracks",
+        statsdKey("api", "media_tracks"),
+        auth,
+        wrapCanvas(media_tracks)
+      );
+      app.put(
+        "/api/media_objects/:mediaObjectId/media_tracks",
+        statsdKey("api", "media_tracks"),
+        auth,
+        wrapCanvas(media_tracks, { method: "PUT" })
+      );
+      app.put(
+        "/api/media_attachments/:mediaAttachmentId/media_tracks",
+        statsdKey("api", "media_tracks"),
+        auth,
+        wrapCanvas(media_tracks, { method: "PUT" })
+      );
     }
   };
 }

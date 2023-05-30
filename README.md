@@ -29,12 +29,11 @@ to manage and balance load between node processes such as [Passenger][1] or
 
 ### Docker
 
-A Docker image is available on Docker Hub at
-`instructure/canvas-rce-api:latest` or Starload at `starlord.inscloudgate.net/jenkins/canvas-rce-api:latest`.
-The container will run the application
-behind Nginx with Passenger listening on port `80`. Please refer to the
-documentation for the [`instructure/node-passenger` base image][7] for nginx and
-passenger configuration environment variables.
+A Docker image is available on Docker Hub at `instructure/canvas-rce-api:latest`
+or Starlord at `starlord.inscloudgate.net/jenkins/canvas-rce-api:latest`. The
+container will run the application behind Nginx with Passenger listening on port
+`80`. Please refer to the documentation for the [`instructure/node-passenger` base image][7]
+for nginx and passenger configuration environment variables.
 
 #### Example
 
@@ -43,9 +42,6 @@ docker run \
   -e ECOSYSTEM_KEY \
   -e ECOSYSTEM_SECRET \
   -e FLICKR_API_KEY \
-  -e UNSPLASH_APP_ID \
-  -e UNSPLASH_SECRET \
-  -e UNSPLASH_APP_NAME \
   -e YOUTUBE_API_KEY \
   -e STATSD_PORT=8125 \
   -e STATSD_HOST=127.0.0.1 \
@@ -68,9 +64,6 @@ Configuration options are set via the following environment variables:
 - `ECOSYSTEM_KEY`: _Required_ The encryption secret shared with Canvas.
 - `ECOSYSTEM_SECRET`: _Required_ The signing secret shared with Canvas.
 - `FLICKR_API_KEY`: Required to support Flickr image search.
-- `UNSPLASH_APP_ID`: Required to support [Unsplash](https://unsplash.com) image search.
-- `UNSPLASH_SECRET`: Required to support [Unsplash](https://unsplash.com) image search.
-- `UNSPLASH_APP_NAME`: Required to support [Unsplash](https://unsplash.com) image search.
 - `YOUTUBE_API_KEY`: Required for querying titles of YouTube embeds.
 - `NODE_ENV`: This should always be set to `production` when running in
   production.
@@ -171,6 +164,24 @@ Example of running a single test file:
 ```
 yarn test:one test/service/api/folders.test.js
 ```
+
+### Releasing
+
+For now releasing to NPM is a manual process.
+
+We use a post-merge Jenkins job to auto-publish `:latest` Docker images to
+Dockerhub and our internal registry, Starlord.
+
+When preparing a release, make sure to tag the release commit with the `v1.2.3`
+semantic release tagging convention. For example:
+
+```bash
+git tag "v1.2.3"
+git push --tags origin
+```
+
+_Important: without the `v` in the git tag, the post-merge Jenkins job won't
+publish a version-specific Docker image._
 
 ## License
 
